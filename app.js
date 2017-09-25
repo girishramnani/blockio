@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
-var index = require('./routes/wallet');
+var wallet = require('./routes/wallet');
 var app = express();
 
 
@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 
-app.use("/api/v1/wallet",beacon)
+app.use("/api/v1/wallet",wallet)
 
 
 
