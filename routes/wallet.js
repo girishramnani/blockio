@@ -1,8 +1,10 @@
 var express = require('express');
 var utils = require("../wallet_store/utils");
-var _ = require("underscore");
+var _ = require("lodash");
 var router = express.Router();
 var network = "testnet";
+var baseWalletLocation = "../wallets/"
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.json(
@@ -17,7 +19,7 @@ router.get('/', function(req, res, next) {
 
 function genOpts(walletName){
     return {
-        "file":walletName,
+        "file": baseWalletLocation + walletName,
     }
 } 
 function createWallet(walletName,copayerName,holders,min,cb) {
@@ -35,8 +37,8 @@ function createWallet(walletName,copayerName,holders,min,cb) {
           }, function() {
             if (secret) {
               cb({
-                  "status":"success",
-                  "secret":secret
+                  "status": "success",
+                  "secret": secret
                 });
             } 
           });
@@ -47,11 +49,21 @@ function createWallet(walletName,copayerName,holders,min,cb) {
 }
 
 
-router.post("/:name",function(req,res) {
+router.post("/:name",
+    function(req,res) {
+    var walletName = req.params.walletName;
+    var copayer = req.params.copayerName;
+    var holders = 2;
+    var minSign = 2;
 
+    createWallet(walletName,copayer,holders,minSign,(data)=>res.json(data));
 })
 
-createWallet("girish","ravi",2,2,(d)=> console.log(d));
+router.post("/:name/create_address",
+    function(req,res) {
 
+        
+    }
+)
 
 module.exports = router;
