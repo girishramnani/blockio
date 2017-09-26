@@ -134,6 +134,25 @@ function send(walletName,to,amount,note,cb) {
 
 } 
 
+function getAddresses(walletName,cb) {
+  utils.getClient(baseWalletLocation + walletName,{ mustExist: true }, (client) => {    
+
+
+  client.getMainAddresses({
+    doNotVerify: true
+  },(err,addresses) => {
+
+    if (err) {
+      cb({"error":err})
+    } else {
+      cb(addresses)
+    }
+
+  })
+
+});
+}
+
 router.post("/:name/join",function(req,res){
   joinWallet(req.params.name,req.body.secret,(resp) => res.json(resp))
 
@@ -184,6 +203,12 @@ router.get("/:name/balance", function(req,res) {
     
   })
 });
+
+router.get("/:name/addresses",function(req,res) {
+
+  getAddresses(req.params.name,(resp) => res.json(resp))
+
+})
 
 
 
