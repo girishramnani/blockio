@@ -10,5 +10,5 @@ Block.io clone
 
 ## Upstream
 
-+ http://35.192.209.96:3001/insight - insight API
-+ http://35.192.209.96:3232 - bitcore wallet service ( do not connect directly ) 
++ http://35.202.171.134:3001/insight - insight API
++ http://35.202.171.134:3232 - bitcore wallet service ( do not connect directly ) 
