@@ -129,6 +129,12 @@ function send(walletName,to,amount,note,cb) {
 
 } 
 
+router.post("/:name/join",function(req,res){
+  joinWallet(req.params.name,req.body.secret,(resp) => res.json(resp))
+
+})
+
+
 router.post("/:name",
     function(req,res) {
     var walletName = req.params.name;
@@ -170,6 +176,7 @@ router.get("/:name/balance", function(req,res) {
   getBalance(req.params.name,(err,balance) => {
     if (err) res.json({"error": err});
     res.json(balance);
+    
   })
 });
 
