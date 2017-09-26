@@ -63,14 +63,12 @@ function getWallet(walletName,cb) {
   utils.getClient(baseWalletLocation + walletName,{
     mustExist: true
   },(client) =>{ 
-    console.log(client);
 
     if(client.error){
 
       cb(client);
 
     } else {
-      console.log(client.export());
 
       cb({"wallet":JSON.parse(client.export())})
     }
