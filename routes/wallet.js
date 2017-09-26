@@ -33,7 +33,11 @@ function createWallet(walletName,copayerName,holders,min,cb) {
                   "status": "success",
                   "secret": secret
                 });
-            } 
+            } else {
+              cb({
+              "status": "success",
+            });
+          }
           });
         });
 
@@ -90,8 +94,9 @@ function createAddress(walletName, cb) {
 
 function getBalance(walletName,cb) {
   utils.getClient(baseWalletLocation + walletName,{ mustExist: true }, (client) => {
-    
+        console.log(client)
         client.getBalance({},(err,resp) => {
+          console.log(resp,err);
           cb(err, resp);
         })
         
