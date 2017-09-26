@@ -217,11 +217,12 @@ router.get('/', function(req, res, next) {
   res.json(
       {
         "/:name":"POST - create a new wallet with name. POST BODY {'copayername':'a','holder':2} ",
-        "/:name/join":"POST - join the wallet. NO POST BODY",
+        "/:name/join":"POST - join the wallet. POST BODY {'secret':'sdfdsf'}",
         "/:name/info":"GET to get the wallet.",
         "/:name/create_address":"POST - create a new address. NO POST BODY",
         "/:name/send":"POST to send money to an address",
-        "/:name/balance":"GET the balance of your wallet"
+        "/:name/balance":"GET the balance of your wallet",
+        "/:name/addresses":"GET to show all the addresses"
     }
     )
 });
