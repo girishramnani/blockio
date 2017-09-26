@@ -64,7 +64,7 @@ Utils.getClient = function(filename, opts, cb) {
         cb({"error":err});
       }
     }
-
+    console.log(walletData);
     if (walletData && opts.mustBeNew) {
       cb({"error":'wallet already exists use other name'});
     }
@@ -145,17 +145,14 @@ Utils.parseAmount = function(text) {
 
   var regex = '^(\\d*(\\.\\d{0,8})?)\\s*(' + _.keys(Utils.UNITS).join('|') + ')?$';
   var match = new RegExp(regex, 'i').exec(text.trim());
-
   if (!match || match.length === 0) throw new Error('Invalid amount');
 
   var amount = parseFloat(match[1]);
   if (!_.isNumber(amount) || _.isNaN(amount)) throw new Error('Invalid amount');
-
   var unit = (match[3] || 'sat').toLowerCase();
   var rate = Utils.UNITS[unit];
   if (!rate) throw new Error('Invalid unit')
-
-  var amountSat = parseFloat((amount * rate).toPrecision(12));
+  var amountSat = parseFloat((amount * rate.toSatoshis).toPrecision(12));
   if (amountSat != Math.round(amountSat)) throw new Error('Invalid amount');
 
   return amountSat;

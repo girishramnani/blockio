@@ -2,7 +2,7 @@ var Client = require('bitcore-wallet-client');
 
 
 var fs = require('fs');
-var BWS_INSTANCE_URL = 'http://35.192.209.96:3232/bws/api'
+var BWS_INSTANCE_URL = 'http://35.202.171.134:3232/bws/api'
 
 var client = new Client({
   baseUrl: BWS_INSTANCE_URL,

@@ -8,22 +8,10 @@ var log = require('npmlog');
 var Client = require('bitcore-wallet-client');
 var router = express.Router();
 var network = "testnet";
-var baseWalletLocation = "../wallets/";
+var baseWalletLocation = "wallets/";
+var feePerKB = 100e2;
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.json(
-      {
-        "/:name":"POST - create a new wallet with name",
-        "/:name/join":"POST - join the wallet",
-        "/:name/info":"GET to get the wallet",
-        "/:name/create_address":"POST - create a new address",
-        "/:name/send":"POST to send money to an address",
-        "/:name/balance":"GET the balance of your wallet"
-    }
-    )
-});
-
 function createWallet(walletName,copayerName,holders,min,cb) {
 
     utils.getClient(baseWalletLocation + walletName,{
@@ -70,18 +58,84 @@ function joinWallet(copayerName,secret,cb) {
   });
 
 }
+
 function getWallet(walletName,cb) {
   utils.getClient(baseWalletLocation + walletName,{
     mustExist: true
-  },(client) => cb({"wallet":JSON.parse(client.export())}))
+  },(client) =>{ 
+    console.log(client);
+
+    if(client.error){
+
+      cb(client);
+
+    } else {
+      console.log(client.export());
+
+      cb({"wallet":JSON.parse(client.export())})
+    }
+
+})
+}
+
+function createAddress(walletName, cb) {
+  utils.getClient(baseWalletLocation + walletName,{ mustExist: true }, (client) => {
+
+    client.createAddress({},(err,resp) => {
+      cb(err, resp);
+    })
+    
+
+  });
 }
 
 
+function getBalance(walletName,cb) {
+  utils.getClient(baseWalletLocation + walletName,{ mustExist: true }, (client) => {
+    
+        client.getBalance({},(err,resp) => {
+          cb(err, resp);
+        })
+        
+      });
+
+}
+
+function send(walletName,to,amount,note,cb) {
+  utils.getClient(baseWalletLocation + walletName,{ mustExist: true }, (client) => {
+    
+  var parsedAmount = utils.parseAmount(amount);
+  client.createTxProposal({
+    outputs: [{
+      toAddress: to,
+      amount: parsedAmount,
+    }],
+    message: note,
+    feePerKb: feePerKb,
+  }, (err, txp) => { 
+
+    if (err) cb(err,null);
+
+    client.publishTxProposal({
+      txp: txp
+    },(err2) => {
+      if (err2) cb(err2,null);
+
+      cb(null,txp);
+
+    });
+
+   });
+
+});
+
+} 
+
 router.post("/:name",
     function(req,res) {
-    var walletName = req.params.walletName;
-    var copayer = req.params.copayerName;
-    var holders = req.params.holders;
+    var walletName = req.params.name;
+    var copayer = req.body.copayerName;
+    var holders = req.body.holders;
     var minSign = 1;
 
     createWallet(walletName,copayer,minSign,holders,(data)=>res.json(data));
@@ -95,16 +149,57 @@ router.get("/:name/info",function(req,res) {
 
 router.post("/:name/create_address",
     function(req,res) {
-
+      createAddress(req.params.name,(err, addrData) => {
+        if (err) {
+          cb({"error":err})
+        }
+        res.json(addrData);
+      })
         
     }
 )
 
-// createWallet("GirishRamnani12","ravi123",1,4,(d)=>{console.log(d)})
+router.post("/:name/send", 
+  function(req,res) {
+     send(req.params.name,req.body.to,req.body.amount,req.body.note,
+    (err,txd) => res.json(txd)
+    )
 
-// joinWallet("ravi123456","WrbumuSVWKs1Cusmeg9npVKwcseR1GHHXyQ3MohXkuf8GiVRHsHfPU3rLzsS4Tm5qvQCGUVKyWTbtc",(d)=> console.log(d))
+  }
+)
 
-getWallet("ravi1234",(d) => console.log(d));
+router.get("/:name/balance", function(req,res) {
+  getBalance(req.params.name,(err,balance) => {
+    if (err) res.json({"error": err});
+    res.json(balance);
+  })
+});
 
+
+
+
+router.get('/', function(req, res, next) {
+  res.json(
+      {
+        "/:name":"POST - create a new wallet with name. POST BODY {'copayername':'a','holder':2} ",
+        "/:name/join":"POST - join the wallet. NO POST BODY",
+        "/:name/info":"GET to get the wallet.",
+        "/:name/create_address":"POST - create a new address. NO POST BODY",
+        "/:name/send":"POST to send money to an address",
+        "/:name/balance":"GET the balance of your wallet"
+    }
+    )
+});
+
+// createWallet("testin3","",1,1,(d)=>{console.log(d)})
+// getWallet("ravi1",(wallet) => console.log(wallet))
+
+// joinWallet("t1","L9djFK6qNAjNb5jGUrxjtdKzaM7tguQKQGocBsn3zRkZHrwbjtJTBZjwUuYSoj4UswpGWezDzkTbtc",(d)=> console.log(d))
+
+// createAddress("testin3",(err,resp) => console.log(err,resp));
+
+// getBalance("t1",(err,resp) => console.log(err,resp));
+
+// send("testin3","mzFegzauNsyYYQDekRVkxE4SgquzYuir4u","500bit","Hello world",(err,data)=> console.log(data));
 
 module.exports = router;
